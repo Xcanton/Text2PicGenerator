@@ -9,15 +9,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.sr.ht/~mendelmaleh/freetype"
+	"git.sr.ht/~mendelmaleh/freetype/truetype"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
 )
 
 var (
-	font_file         = flag.String("font", "Alibaba-PuHuiTi-Regular.otf", "Enter the Font File's Name which You r Planing Using")
+	font_file         = flag.String("font", "Alibaba-PuHuiTi-Regular.ttf", "Enter the Font File's Name which You r Planing Using")
 	font_default, err = filepath.Abs(filepath.Join("../Fonts", *font_file))
+	letter_size       = flag.Int("letter_size", 10, "Enter Letter Size")
 )
 
 func ReadFileUTF16(filename string) ([]byte, error) {
@@ -57,6 +58,13 @@ func ReadFileUTF8(filename string) ([]byte, error) {
 	return utf8Bytes, err
 }
 
+// func GenerateText(text string, font []byte, font_size int) {
+// 	file := freetype.NewContent()
+
+// 	file.SetFont(font)
+// 	file.SetFontSize(font_size)
+// }
+
 func main() {
 
 	flag.Parse()
@@ -67,15 +75,18 @@ func main() {
 
 	fmt.Printf("\n the using font file is %s\n", font)
 
-	uft16Bytes, _ := ReadFileUTF16(font)
-	fmt.Println("读取font字体文件完成")
+	fileByte, err := ioutil.ReadFile(font)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	fmt.Println("转换font字体文件为utf-8完成")
-
-	f, err := freetype.ParseFont(uft16Bytes)
+	f, err := truetype.Parse(fileByte)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
-	fmt.Print(f)
+
+	fmt.Println("\n Successfully Load in font format file\n")
+	fmt.Println(f)
+
 }
